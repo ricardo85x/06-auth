@@ -1,6 +1,21 @@
-import { ReactNode, useContext } from "react";
+import { useRouter } from "next/router";
+import { ReactNode, useContext, useState } from "react";
+import {setCookie} from "nookies"
 import { createContext } from "react";
 import { api } from "../services/api";
+
+type User = {
+    email: string;
+    permissions: string[];
+    roles: string[]; 
+}
+
+type SessionsResponseProps = {
+    token: string;
+    refreshToken: "string";
+    permissions: string[];
+    roles: string[];
+}
 
 type SignInCredentials = {
     email: string;
@@ -8,6 +23,7 @@ type SignInCredentials = {
 }
 
 type AuthContextData = {
+    user: User;
     signIn(credentials:SignInCredentials): Promise<void>;
     isAuthenticated: boolean;
 }
@@ -20,15 +36,44 @@ const AuthContext = createContext({} as AuthContextData)
 
 export const AuthProvider = ({children}: AuthProviderProps) => {
 
-    const isAuthenticated = false;
+    const router = useRouter()
+
+    const [user, setUser] = useState<User>()
+    const isAuthenticated = !!user;
+
     const signIn = async ({email, password} : SignInCredentials) => {
 
         try {
 
-            const response = await api.post("/sessions", {
+            const response = await api.post<SessionsResponseProps>("/sessions", {
                 email, 
                 password
             })
+
+            const {token, refreshToken, permissions, roles} = response.data
+
+            setCookie(undefined,'nextauth.token', token, {
+                maxAge: 60 * 60 * 24 * 30, // 30 days
+                path: '/'
+
+            })
+            setCookie(undefined,'nextauth.refreshToken', refreshToken, {
+                maxAge: 60 * 60 * 24 * 30, // 30 days
+                path: '/'
+            })
+            
+            // @sessionStorage - valid until user close browser
+            // @localStorage - persist after browser close, 
+            // but next cant read it when using serverSideProps
+            // @cookies - the way to go \o/
+
+            setUser({
+                email,
+                permissions,
+                roles
+            })
+             
+            router.push("/dashboard")
 
             console.log(response)
 
@@ -37,7 +82,7 @@ export const AuthProvider = ({children}: AuthProviderProps) => {
         }
     }
 
-    const value = {isAuthenticated, signIn} as AuthContextData;
+    const value = {isAuthenticated, signIn, user} as AuthContextData;
 
     return (
         <AuthContext.Provider value={value} >
