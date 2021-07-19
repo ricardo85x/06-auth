@@ -7,6 +7,6 @@ export default function Dashboard() {
     
 
     return (
-        <h1>DashBoard {user.email}</h1>
+        <h1>DashBoard {user?.email}</h1>
     )
 }
