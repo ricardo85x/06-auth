@@ -1,49 +1,42 @@
 import { useEffect } from "react"
 import { useAuth } from "../contexts/AuthContext"
 import { api } from "../services/apiClient"
-import {setupApiClient } from "../services/api"
+import { setupApiClient } from "../services/api"
 import { withSSRAuth } from "../utils/withSSRAuth"
-import { AuthTokenError } from "../services/errors/AuthTokenError"
-import {destroyCookie} from "nookies"
+import { useCan } from "../hooks/useCan"
 
 export default function Dashboard() {
 
-    const {user} = useAuth()
+    const { user } = useAuth()
+
+    const userCanSeeMetrics = useCan({ 
+        permissions: ['metrics.list']
+    })
+
+    
 
     useEffect(() => {
         api.get("/me")
             .then(response => console.log(response))
             .catch(error => console.log(error))
     }, [])
-    
+
 
     return (
+        <>
         <h1>DashBoard {user?.email}</h1>
+        { userCanSeeMetrics && <div>Metrics</div>}
+        </>
     )
 }
 
-export const ServerSideProps = withSSRAuth(async(ctx) => {
+export const ServerSideProps = withSSRAuth(async (ctx) => {
 
     const apiServer = setupApiClient(ctx)
 
-    // try {
+    const response = await apiServer.get("/me");
 
-        const response = await apiServer.get("/me");
-        console.log(response)
-
-    // } catch (err) {
-    //     console.log(err instanceof AuthTokenError)
-
-    //     destroyCookie(ctx,"nextauth.token")
-    //     destroyCookie(ctx,"nextauth.refreshToken ")
-
-    //     return {
-    //         redirect: {
-    //             destination: "/",
-    //             permanent: false
-    //         }
-    //     }
-    // }
+    console.log(response)
 
     return {
         props: {
