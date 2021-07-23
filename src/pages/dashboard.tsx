@@ -5,6 +5,7 @@ import { setupApiClient } from "../services/api"
 import { withSSRAuth } from "../utils/withSSRAuth"
 import { useCan } from "../hooks/useCan"
 import { Can } from "../components/Can"
+import { GetServerSideProps } from "next"
 
 export default function Dashboard() {
 
@@ -51,7 +52,7 @@ export default function Dashboard() {
     )
 }
 
-export const ServerSideProps = withSSRAuth(async (ctx) => {
+export const getServerSideProps:GetServerSideProps = withSSRAuth(async (ctx) => {
 
     const apiServer = setupApiClient(ctx)
 
