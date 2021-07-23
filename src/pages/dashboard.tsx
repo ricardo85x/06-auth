@@ -4,6 +4,7 @@ import { api } from "../services/apiClient"
 import { setupApiClient } from "../services/api"
 import { withSSRAuth } from "../utils/withSSRAuth"
 import { useCan } from "../hooks/useCan"
+import { Can } from "../components/Can"
 
 export default function Dashboard() {
 
@@ -26,6 +27,26 @@ export default function Dashboard() {
         <>
         <h1>DashBoard {user?.email}</h1>
         { userCanSeeMetrics && <div>Metrics</div>}
+
+        <Can roles={['editor']}>
+            <div>Editor component</div>
+        </Can>
+
+
+        <Can roles={['client']}>
+            <div>Client component</div>
+        </Can>
+
+
+        <Can permissions={['users.list']}>
+            <div>User list component</div>
+        </Can>
+
+        
+
+
+
+
         </>
     )
 }
