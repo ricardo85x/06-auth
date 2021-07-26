@@ -6,7 +6,6 @@ export const withSSRGuest = <P>(fn: GetServerSideProps<P>) =>  {
     
     return async (ctx: GetServerSidePropsContext) : Promise<GetServerSidePropsResult<P>> => {
         
-        console.log(ctx.req.cookies)
 
         const cookies = parseCookies(ctx)
 

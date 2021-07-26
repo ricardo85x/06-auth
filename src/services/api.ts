@@ -78,6 +78,7 @@ export const setupApiClient = (ctx = undefined) => {
                                 if(process.browser){
                                     signOut()
                                 } else {
+                                    console.log("Error on server not to do...")
                                     return Promise.reject(new AuthTokenError())
                                 }
                                 

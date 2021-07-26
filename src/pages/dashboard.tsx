@@ -9,7 +9,7 @@ import { GetServerSideProps } from "next"
 
 export default function Dashboard() {
 
-    const { user } = useAuth()
+    const { user,signOut } = useAuth()
 
     const userCanSeeMetrics = useCan({ 
         permissions: ['metrics.list']
@@ -27,6 +27,11 @@ export default function Dashboard() {
     return (
         <>
         <h1>DashBoard {user?.email}</h1>
+
+
+        <button onClick={signOut}>SignOut</button>
+
+
         { userCanSeeMetrics && <div>Metrics</div>}
 
         <Can roles={['editor']}>
@@ -58,7 +63,6 @@ export const getServerSideProps:GetServerSideProps = withSSRAuth(async (ctx) => 
 
     const response = await apiServer.get("/me");
 
-    console.log(response)
 
     return {
         props: {
